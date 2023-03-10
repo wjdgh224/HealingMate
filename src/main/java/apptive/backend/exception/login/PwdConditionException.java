@@ -1,11 +1,16 @@
 package apptive.backend.exception.login;
 
+import apptive.backend.exception.ExceptionEnum;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-public class PwdConditionException extends LoginException{
+@Getter
+public class PwdConditionException extends RuntimeException{
 
-    public PwdConditionException(String message) {
+    private final ExceptionEnum error;
 
-        super(message, HttpStatus.BAD_REQUEST);
+    public PwdConditionException(ExceptionEnum e) {
+        super(e.getMessage());
+        this.error = e;
     }
 }

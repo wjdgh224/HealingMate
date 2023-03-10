@@ -1,13 +1,16 @@
 package apptive.backend.exception.login;
 
+import apptive.backend.exception.ExceptionEnum;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-public class SameNickNameException extends LoginException{
+@Getter
+public class SameNickNameException extends RuntimeException{
 
-    private static final String MESSAGE = "중복된 닉네임이 존재합니다.";
+    private final ExceptionEnum error;
 
-    public SameNickNameException() {
-
-        super(MESSAGE, HttpStatus.BAD_REQUEST);
+    public SameNickNameException(ExceptionEnum e) {
+        super(e.getMessage());
+        this.error = e;
     }
 }

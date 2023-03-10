@@ -1,5 +1,6 @@
 package apptive.backend.login.dto.request;
 
+import apptive.backend.validation.login.Password;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,13 +14,21 @@ public class MemberRequestDto {
     @Setter
     public static class PostMemberDetail {
 
-        private String memberName;
         private String memberNickname;
         private String pwd1;
         private String pwd2;
 
-        private LocalDate memberBirth;
+        private String memberAge;
         private String memberSex;
         private List<String> diseaseList;
+    }
+
+    @Getter @Setter
+    public static class PostMemberValidationCheck {
+
+        private String memberNickname;
+        @Password //비밀번호 관련 validation 확인
+        private String pwd1;
+        private String pwd2;
     }
 }
