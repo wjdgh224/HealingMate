@@ -2,19 +2,18 @@ package apptive.backend.login.domain;
 
 import apptive.backend.config.StringListConverter;
 import apptive.backend.login.dto.request.MemberRequestDto;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.time.LocalDate;
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
 @NoArgsConstructor
-public class Member {
+public class Member implements Serializable {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "memberId")
@@ -28,8 +27,8 @@ public class Member {
 
     // 멤버 닉네임과 비밀번호를 통해 로그인
     @Column(nullable = false)
-    private String memberNickName;
-    @Column(nullable = false)
+    private String memberNickname;
+    @Column(nullable = false) @Getter
     private String pwd;
 
     // 질병 추가 리스트 + nullable = true
@@ -41,8 +40,8 @@ public class Member {
     @Builder
     public Member(MemberRequestDto.PostMemberDetail memberDetail) {
 
-        this.memberNickName = memberDetail.getMemberNickname();
-        this.pwd = memberDetail.getPwd1();
+        this.memberNickname = memberDetail.getMemberNickname();
+        this.pwd = new BCryptPasswordEncoder().encode(memberDetail.getPwd1());
         this.memberAge = memberDetail.getMemberAge();
         this.memberSex = memberDetail.getMemberSex();
         this.diseaseList = memberDetail.getDiseaseList();

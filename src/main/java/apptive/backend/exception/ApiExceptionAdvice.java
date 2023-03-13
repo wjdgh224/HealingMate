@@ -26,9 +26,9 @@ public class ApiExceptionAdvice {
     public ResponseEntity<ExceptionEntity> exceptionHandler(HttpServletRequest request, final PwdConditionException e) {
         e.printStackTrace();
         return ResponseEntity
-                .status(ExceptionEnum.PWD_CONDITION_EXCEPTION.getStatus())
+                .status(ExceptionEnum.PWD_NOT_SAME_EXCEPTION.getStatus())
                 .body(ExceptionEntity.builder()
-                        .errorCode(ExceptionEnum.PWD_CONDITION_EXCEPTION.getCode())
+                        .errorCode(ExceptionEnum.PWD_NOT_SAME_EXCEPTION.getCode())
                         .errorMessage(e.getMessage())
                         .build());
     }
