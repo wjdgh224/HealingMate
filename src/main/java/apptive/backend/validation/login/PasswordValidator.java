@@ -1,5 +1,7 @@
 package apptive.backend.validation.login;
 
+import apptive.backend.exception.ExceptionEnum;
+import apptive.backend.exception.login.PwdConditionException;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.stereotype.Component;
@@ -25,12 +27,14 @@ public class PasswordValidator implements ConstraintValidator<Password, String> 
 
         if(!isValidPassword) {
 
-            context.disableDefaultConstraintViolation();;
+            context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(
-                    MessageFormat.format("{0}자 이상 {1}자 이하의 숫자, 영문자, 특수문자를 포함한 비밀번호를 입력해주세요.", MIN_SIZE, MAX_SIZE))
+                            MessageFormat.format("{0}자 이상 {1}자 이하의 숫자, 영문자, 특수문자를 포함한 비밀번호를 입력해주세요.", MIN_SIZE, MAX_SIZE))
                     .addConstraintViolation();
+
+            throw new PwdConditionException(ExceptionEnum.PWD_CONDITION_EXCEPTION);
         }
-        return isValidPassword;
+        return true;
     }
 
     public boolean isValid(String password) {

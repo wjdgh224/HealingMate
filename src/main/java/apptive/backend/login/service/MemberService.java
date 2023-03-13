@@ -1,7 +1,9 @@
 package apptive.backend.login.service;
 
 import apptive.backend.exception.ExceptionEnum;
+import apptive.backend.exception.login.MemberNotExistException;
 import apptive.backend.exception.login.PwdConditionException;
+import apptive.backend.exception.login.SameNickNameException;
 import apptive.backend.login.domain.Member;
 import apptive.backend.login.dto.request.MemberRequestDto;
 import apptive.backend.login.repository.MemberRepository;
@@ -9,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +19,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
 
+    //<------------ 회원가입 ------------>
     @Transactional
     public Long createMember(MemberRequestDto.PostMemberDetail memberDetail) {
 
@@ -37,17 +40,25 @@ public class MemberService {
          */
 
         //닉네임 중복 확인
-        //isUniqueMember(memberNickname);
+        isUniqueMember(validationCheck.getMemberNickname());
         //비밀번호 조건 충족 여부
         checkPwdCondition(validationCheck.getPwd1(), validationCheck.getPwd2());
     }
 
+    //<------------ 회원탈퇴 ------------>
+    public void deleteMember(Long memberId) {
+
+        //회원 존재하는지 확인
+        Member member = isMemberExist(memberId);
+        memberRepository.delete(member);
+    }
+
     //<------------verification method------------>
     private void isUniqueMember(String memberNickname) {
-        List<Long> nicknameList = memberRepository.findAllByMemberNickName(memberNickname);
 
-        if(nicknameList.size() != 0) {
-            //throw new SameNickNameException();
+        Optional<Member> member = memberRepository.findByMemberNickname(memberNickname);
+        if(member.isPresent()) {
+            throw new SameNickNameException(ExceptionEnum.SAME_MEMBER_NAME_EXCEPTION);
         }
     }
 
@@ -57,7 +68,17 @@ public class MemberService {
         if(pwd1.equals(pwd2)) {
 
         } else {
-            throw new PwdConditionException(ExceptionEnum.PWD_CONDITION_EXCEPTION);
+            throw new PwdConditionException(ExceptionEnum.PWD_NOT_SAME_EXCEPTION);
+        }
+    }
+
+    private Member isMemberExist(Long memberId) {
+
+        try {
+            Member member = memberRepository.findById(memberId).get();
+            return member;
+        } catch (MemberNotExistException e) {
+            throw e;
         }
     }
 }

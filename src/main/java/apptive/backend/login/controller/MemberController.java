@@ -1,23 +1,20 @@
 package apptive.backend.login.controller;
 
-import apptive.backend.exception.ExceptionEnum;
-import apptive.backend.exception.login.LoginException;
 import apptive.backend.login.dto.request.MemberRequestDto;
 import apptive.backend.login.service.MemberService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/login")
+@RequestMapping("/member")
 public class MemberController {
 
     private final MemberService memberService;
@@ -38,5 +35,19 @@ public class MemberController {
         Long memberId = memberService.createMember(memberDetail);
 
         return new ResponseEntity(memberId, HttpStatus.CREATED);
+    }
+
+    // <-------------------- DELETE part -------------------->
+    @DeleteMapping("/delete")
+    public ResponseEntity deleteMember(@RequestPart(name = "memberId")Long memberId,
+                                       HttpServletRequest httpServletRequest) {
+
+        memberService.deleteMember(memberId);
+
+        //저장된 세션 삭제
+        HttpSession session = httpServletRequest.getSession();
+        session.invalidate();
+
+        return new ResponseEntity("회원탈퇴가 완료되었습니다.", HttpStatus.OK);
     }
 }
