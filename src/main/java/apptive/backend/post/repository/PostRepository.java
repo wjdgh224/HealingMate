@@ -1,4 +1,7 @@
 package apptive.backend.post.repository;
 
-public interface PostRepository {
+import apptive.backend.post.entity.Post;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface PostRepository extends JpaRepository<Post, Long> {
 }
