@@ -2,13 +2,16 @@ package apptive.backend.login.domain;
 
 import apptive.backend.config.StringListConverter;
 import apptive.backend.login.dto.request.MemberRequestDto;
+import apptive.backend.post.entity.Post;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -35,6 +38,10 @@ public class Member implements Serializable {
     @Convert(converter = StringListConverter.class)
     @Column(nullable = false)
     private List<String> diseaseList;
+
+    @OneToMany(mappedBy = "member", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @ToString.Exclude
+    private List<Post> postList = new ArrayList<>();
 
     //<------------Builder------------>
     @Builder
