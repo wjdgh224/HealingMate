@@ -20,9 +20,13 @@ public class Post {
 
     private String postTitle;
 
+    private String category;
+
     private String postContent;
 
     private String postPhoto;
+
+    private Long isLike;
 
     private LocalDateTime createdAt;
 

@@ -20,37 +20,37 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    @PostMapping("/comment")
-    public ResponseEntity<CommentResponseDto> createComment(Long postId ,@RequestBody CommentDto commentDto) {
+    @PostMapping("/comment/{postId}")
+    public ResponseEntity<CommentResponseDto> createComment(@PathVariable Long postId , CommentDto commentDto) {
         CommentResponseDto commentResponseDto = commentService.saveComment(postId, commentDto);
 
         return ResponseEntity.status(HttpStatus.OK).body(commentResponseDto);
     }
 
-    @GetMapping("/comment")
-    public ResponseEntity<CommentResponseDto> getComment(Long id) {
-        CommentResponseDto commentResponseDto = commentService.getComment(id);
+    @GetMapping("/comment/{commentId}")
+    public ResponseEntity<CommentResponseDto> getComment(@PathVariable Long commentId) {
+        CommentResponseDto commentResponseDto = commentService.getComment(commentId);
 
         return ResponseEntity.status(HttpStatus.OK).body(commentResponseDto);
     }
 
-    @GetMapping("/comments")
-    public ResponseEntity<List<CommentResponseDto>> getComments(Long postId) {
+    @GetMapping("/comments/{postId}")
+    public ResponseEntity<List<CommentResponseDto>> getComments(@PathVariable Long postId) {
         List<CommentResponseDto> commentResponseDto = commentService.getComments(postId);
 
         return ResponseEntity.status(HttpStatus.OK).body(commentResponseDto);
     }
 
-    @PutMapping("/comment")
-    public ResponseEntity<CommentResponseDto> changeComment(Long id, @RequestBody CommentDto commentDto) throws Exception{
-        CommentResponseDto commentResponseDto = commentService.changeComment(id, commentDto);
+    @PutMapping("/comment/{commentId}")
+    public ResponseEntity<CommentResponseDto> changeComment(@PathVariable Long commentId, CommentDto commentDto) throws Exception{
+        CommentResponseDto commentResponseDto = commentService.changeComment(commentId, commentDto);
 
         return ResponseEntity.status(HttpStatus.OK).body(commentResponseDto);
     }
 
-    @DeleteMapping("/comment")
-    public ResponseEntity<String> deleteComment(Long id) throws Exception{
-        commentService.deleteComment(id);
+    @DeleteMapping("/comment/{commentId}")
+    public ResponseEntity<String> deleteComment(@PathVariable Long commentId) throws Exception{
+        commentService.deleteComment(commentId);
 
         return ResponseEntity.status(HttpStatus.OK).body("정상적으로 삭제되었습니다.");
     }
