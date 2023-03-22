@@ -2,6 +2,8 @@ package apptive.backend.config;
 
 import apptive.backend.handler.login.CustomLoginFailureHandler;
 import apptive.backend.handler.login.CustomLoginSuccessHandler;
+import apptive.backend.login.jwt.JwtAuthenticationFilter;
+import apptive.backend.login.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,17 +13,21 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
 public class MemberConfig {
+
+    private final JwtTokenProvider jwtTokenProvider;
 
     //비밀번호 암호화
     @Bean
@@ -32,7 +38,7 @@ public class MemberConfig {
     //특정 경로의 파일 무시
 
     //HTTP Basic : 모든 엔드포인트 보호
-    @Bean
+    /*@Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
@@ -41,48 +47,42 @@ public class MemberConfig {
                 .httpBasic(Customizer.withDefaults());
 
         return http.build();
-    }
+    }*/
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers("/member/join/1", "/member/join/2");
+        return (web) -> web.ignoring().requestMatchers("/member/**", "/login");
     }
 
     @Bean
-    protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
+    protected SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception {
 
-        //접근 권한
-        http.authorizeHttpRequests()
-                .requestMatchers("/", "/member/join/1", "/member/join/2", "/login").permitAll()
+        /*httpSecurity
+                .httpBasic().disable()
+                .csrf().disable()
+                .cors().and()
+                .headers().frameOptions().disable().and()
+                .authorizeHttpRequests()
+                .requestMatchers("/login", "/member/**").permitAll()
+                .requestMatchers("/post/**").hasAuthority("USER")
                 .anyRequest().authenticated();
 
-        //폼 로그인
-        http.formLogin()
-                .loginPage("/login")
-                .loginProcessingUrl("/login")
-                .failureHandler(failureHandler())
-                .successHandler(successHandler())
-                .permitAll()
+        httpSecurity
+                .sessionManagement()
+                .maximumSessions(1)
+                .maxSessionsPreventsLogin(true);*/
+
+        httpSecurity
+                .csrf().disable().headers().frameOptions().disable()
                 .and()
-                .csrf().disable();
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .authorizeHttpRequests().requestMatchers("/member/**", "/login").permitAll()
+                .anyRequest().authenticated()
+                .and()
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
-        //로그아웃
-        http.logout()
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                .logoutSuccessUrl("/login")
-                .invalidateHttpSession(true)
-                .clearAuthentication(true)
-                .deleteCookies("SESSION", "JSESSIONID");
-
-        //중복 로그인
-        http.sessionManagement()
-                .invalidSessionUrl("/login?invalidSession")
-                .sessionAuthenticationErrorUrl("/login?maximumSessions")
-                .maximumSessions(1) // 최대 허용 세션 수
-                .maxSessionsPreventsLogin(false) // 중복 로그인하면 기존 세션 만료
-                .expiredUrl("/login?expiredSession");
-
-        return http.build();
+        return httpSecurity.build();
     }
 
     @Bean

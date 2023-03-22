@@ -1,13 +1,17 @@
 package apptive.backend.login.service;
 
 import apptive.backend.exception.ExceptionEnum;
+import apptive.backend.exception.login.LoginException;
 import apptive.backend.exception.login.MemberNotExistException;
 import apptive.backend.exception.login.PwdConditionException;
 import apptive.backend.exception.login.SameNickNameException;
 import apptive.backend.login.domain.Member;
+import apptive.backend.login.dto.request.LoginRequestDto;
 import apptive.backend.login.dto.request.MemberRequestDto;
+import apptive.backend.login.jwt.JwtTokenProvider;
 import apptive.backend.login.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +22,8 @@ import java.util.Optional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final PasswordEncoder passwordEncoder;
 
     //<------------ 회원가입 ------------>
     @Transactional
@@ -51,6 +57,21 @@ public class MemberService {
         //회원 존재하는지 확인
         Member member = isMemberExist(memberId);
         memberRepository.delete(member);
+    }
+
+    //<------------ 로그인 ------------>
+    @Transactional
+    public String login(LoginRequestDto loginRequestDto) {
+
+        Member member = memberRepository.findByMemberNickname(loginRequestDto.getMemberNickname())
+                .orElseThrow(() -> new MemberNotExistException(ExceptionEnum.MEMBER_NOT_EXIST_EXCEPTION));
+
+        if(!passwordEncoder.matches(loginRequestDto.getPassword(), member.getPwd())) {
+            throw  new LoginException(ExceptionEnum.WRONG_PWD_EXCEPTION);
+        }
+
+        //로그인에 성공하면 email, roles 로 토큰 생성 후 반환
+        return jwtTokenProvider.createToken(member.getMemberNickname(), member.getRoles());
     }
 
     //<------------verification method------------>
