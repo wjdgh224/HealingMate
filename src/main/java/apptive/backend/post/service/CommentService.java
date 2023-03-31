@@ -2,6 +2,9 @@ package apptive.backend.post.service;
 
 import apptive.backend.post.dto.CommentDto;
 import apptive.backend.post.dto.CommentResponseDto;
+import apptive.backend.post.entity.Comment;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -13,7 +16,7 @@ public interface CommentService {
     CommentResponseDto getComment(Long id);
 
     //post 모든 댓글 조회
-    List<CommentResponseDto> getComments(Long postId);
+    Page<Comment> getComments(Long postId, Pageable pageable);
 
     //comment 수정
     CommentResponseDto changeComment(Long id, CommentDto commentDto) throws Exception;

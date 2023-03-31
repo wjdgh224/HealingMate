@@ -1,5 +1,6 @@
 package apptive.backend.post.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,5 +25,6 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "post_postId")
     @ToString.Exclude
+    @JsonIgnore
     private Post post;
 }

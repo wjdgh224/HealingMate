@@ -6,6 +6,8 @@ import apptive.backend.post.dto.CommentResponseDto;
 import apptive.backend.post.entity.Comment;
 import apptive.backend.post.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -50,16 +52,17 @@ public class CommentServiceImpl implements CommentService {
 
     // postId로 comments조회.
     @Override
-    public List<CommentResponseDto> getComments(Long postId) {
-        List<Comment> comments = commentDao.selectComments(postId);
-        List<CommentResponseDto> responseComments = new ArrayList<>();
-        for(Comment comment : comments) {
-            CommentResponseDto responseComment = new CommentResponseDto();
-            responseComment.setCommentId(comment.getCommentId());
-            responseComment.setCommentContent(comment.getCommentContent());
-            responseComments.add(responseComment);
-        }
-        return responseComments;
+    public Page<Comment> getComments(Long postId, Pageable pageable) {
+        Page<Comment> posts = commentDao.selectComments(postId, pageable);
+//        List<Comment> comments = commentDao.selectComments(postId);
+//        List<CommentResponseDto> responseComments = new ArrayList<>();
+//        for(Comment comment : comments) {
+//            CommentResponseDto responseComment = new CommentResponseDto();
+//            responseComment.setCommentId(comment.getCommentId());
+//            responseComment.setCommentContent(comment.getCommentContent());
+//            responseComments.add(responseComment);
+//        }
+        return posts;
     }
 
     @Override

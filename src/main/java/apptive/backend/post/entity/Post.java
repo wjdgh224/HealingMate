@@ -1,6 +1,7 @@
 package apptive.backend.post.entity;
 
 import apptive.backend.login.domain.Member;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,7 +25,7 @@ public class Post {
 
     private String postContent;
 
-    private String postPhoto;
+    private List<String> postPhotos;
 
     private Long isLike;
 
@@ -36,6 +37,7 @@ public class Post {
     @ManyToOne
     @JoinColumn(name = "member_memberId")
     @ToString.Exclude
+    @JsonIgnore
     private Member member;
 
     //comment 1:N, post별 모든 comment조회
