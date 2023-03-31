@@ -5,7 +5,10 @@ import apptive.backend.post.dto.PostResponseDto;
 import apptive.backend.post.entity.Post;
 import apptive.backend.post.service.PostService;
 import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,10 +41,42 @@ public class PostController {
     }
 
     @GetMapping("/posts")
-    public ResponseEntity<List<PostResponseDto>> getPosts() {
-        List<PostResponseDto> postResponseDto = postService.getPosts();
+    public ResponseEntity<Page<Post>> getPosts(@RequestParam(defaultValue = "0") int page) {
+        PageRequest pageRequest = PageRequest.of(page, 10);
+        Page<Post> pages = postService.getPosts(pageRequest);
+//        System.out.println("PAGE SIZE : " + pages.getSize());
+//        System.out.println("TOTAL PAGES : " + pages.getTotalPages());
+//        System.out.println("TOTAL COUNT : " + pages.getTotalElements());
+//        System.out.println("NEXT : " + pages.nextPageable());
+        return  ResponseEntity.status(HttpStatus.OK).body(pages);
 
-        return ResponseEntity.status(HttpStatus.OK).body(postResponseDto);
+//        List<PostResponseDto> postResponseDto = postService.getPosts();
+//
+//        return ResponseEntity.status(HttpStatus.OK).body(postResponseDto);
+    }
+
+    @GetMapping("/posts/category")
+    public ResponseEntity<Page<Post>> getByCategory(@RequestParam String keyword, @RequestParam(defaultValue = "0") int page) {
+        PageRequest pageRequest = PageRequest.of(page, 10);
+        Page<Post> pages = postService.getByCategory(keyword, pageRequest);
+
+        return ResponseEntity.status(HttpStatus.OK).body(pages);
+    }
+
+    @GetMapping("/posts/title")
+    public ResponseEntity<Page<Post>> getByPostTitle(@RequestParam String keyword, @RequestParam(defaultValue = "0") int page) {
+        PageRequest pageRequest = PageRequest.of(page, 10);
+        Page<Post> pages = postService.getByPostTitle(keyword, pageRequest);
+
+        return ResponseEntity.status(HttpStatus.OK).body(pages);
+    }
+
+    @GetMapping("/posts/content")
+    public ResponseEntity<Page<Post>> getByPostContent(@RequestParam String keyword, @RequestParam(defaultValue = "0") int page) {
+        PageRequest pageRequest = PageRequest.of(page, 10);
+        Page<Post> pages = postService.getByPostContent(keyword, pageRequest);
+
+        return ResponseEntity.status(HttpStatus.OK).body(pages);
     }
 
     @PutMapping("/post/{postId}")

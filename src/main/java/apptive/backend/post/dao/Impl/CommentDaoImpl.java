@@ -7,6 +7,8 @@ import apptive.backend.post.entity.Post;
 import apptive.backend.post.repository.CommentRepository;
 import apptive.backend.post.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -41,10 +43,11 @@ public class CommentDaoImpl implements CommentDao {
     }
 
     @Override
-    public List<Comment> selectComments(Long postId) {
-        List<Comment> selectedComments = postRepository.findById(postId).get().getCommentList();
+    public Page<Comment> selectComments(Long postId, Pageable pageable) {
+        Page<Comment> selectedComments = commentRepository.findByPostPostId(postId, pageable);
 
         return selectedComments;
+        //return null;
     }
 
     @Override

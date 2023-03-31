@@ -2,8 +2,11 @@ package apptive.backend.post.controller;
 
 import apptive.backend.post.dto.CommentDto;
 import apptive.backend.post.dto.CommentResponseDto;
+import apptive.backend.post.entity.Comment;
 import apptive.backend.post.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,10 +38,12 @@ public class CommentController {
     }
 
     @GetMapping("/comments/{postId}")
-    public ResponseEntity<List<CommentResponseDto>> getComments(@PathVariable Long postId) {
-        List<CommentResponseDto> commentResponseDto = commentService.getComments(postId);
+    public ResponseEntity<Page<Comment>> getComments(@PathVariable Long postId, @RequestParam(defaultValue = "0") int page) {
+        PageRequest pageRequest = PageRequest.of(page, 10);
+        Page<Comment> comments = commentService.getComments(postId, pageRequest);
+        //List<CommentResponseDto> commentResponseDto = commentService.getComments(postId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(commentResponseDto);
+        return ResponseEntity.status(HttpStatus.OK).body(comments);
     }
 
     @PutMapping("/comment/{commentId}")

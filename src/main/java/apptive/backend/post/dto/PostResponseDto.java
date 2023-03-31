@@ -2,6 +2,8 @@ package apptive.backend.post.dto;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class PostResponseDto {
     private Long postId;
@@ -12,7 +14,7 @@ public class PostResponseDto {
 
     private String postContent;
 
-    private String postPhoto;
+    private List<String> postPhotos;
 
     private Long isLike;
 }
