@@ -35,42 +35,8 @@ public class MemberConfig {
         return new BCryptPasswordEncoder();
     }
 
-    //특정 경로의 파일 무시
-
-    //HTTP Basic : 모든 엔드포인트 보호
-    /*@Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-        http
-                .authorizeHttpRequests((authz) -> authz
-                        .anyRequest().authenticated())
-                .httpBasic(Customizer.withDefaults());
-
-        return http.build();
-    }*/
-
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers("/member/**", "/login");
-    }
-
     @Bean
     protected SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception {
-
-        /*httpSecurity
-                .httpBasic().disable()
-                .csrf().disable()
-                .cors().and()
-                .headers().frameOptions().disable().and()
-                .authorizeHttpRequests()
-                .requestMatchers("/login", "/member/**").permitAll()
-                .requestMatchers("/post/**").hasAuthority("USER")
-                .anyRequest().authenticated();
-
-        httpSecurity
-                .sessionManagement()
-                .maximumSessions(1)
-                .maxSessionsPreventsLogin(true);*/
 
         httpSecurity
                 .csrf().disable().headers().frameOptions().disable()
@@ -78,7 +44,7 @@ public class MemberConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests().requestMatchers("/member/**", "/login").permitAll()
-                .anyRequest().authenticated()
+                .anyRequest().hasRole("USER") //다른 url로 접근 시 USER 권한이 있어야 함
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
