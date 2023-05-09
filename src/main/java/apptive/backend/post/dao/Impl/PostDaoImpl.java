@@ -82,17 +82,18 @@ public class PostDaoImpl implements PostDao {
         return selectByPostContent;
     }
 
-//    @Override
-//    public Page<Post> selectByWriter(String keyword, Pageable pageable) {
-//        Long memberId = 0L; //작성자 이름으로 memberId 얻기
-//        Page<Post> selectByWriter = postRepository.findByMemberId(memberId, pageable);
-//        return null;
-//    }
+    @Override
+    public Page<Post> selectByWriter(String keyword, Pageable pageable) {
+        Optional<Member> member = memberRepository.findByMemberNickname(keyword);
+        Page<Post> selectByWriter = postRepository.findByMemberMemberId(member.get().getMemberId(), pageable);
+
+        return selectByWriter;
+    }
 
     @Override
-    public Post updatePost(HttpServletRequest request, Long id, PostDto postDto) throws Exception {
+    public Post updatePost(Long id, PostDto postDto) throws Exception {
         Optional<Post> selectedPost = postRepository.findById(id);
-        List<String> path = updateFiles(request, postDto.getPostPhotos());
+        List<String> path = updateFiles(postDto.getPostPhotos());
 
         Post updatedPost;
         if(selectedPost.isPresent()) {
@@ -111,7 +112,7 @@ public class PostDaoImpl implements PostDao {
         return updatedPost;
     }
 
-    public List<String> updateFiles(HttpServletRequest request, List<MultipartFile> files) throws Exception {
+    public List<String> updateFiles(List<MultipartFile> files) throws Exception {
         if(files==null)
             return null;
         SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmss");

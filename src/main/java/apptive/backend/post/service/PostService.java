@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.List;
 
 public interface PostService {
-    PostResponseDto savePost(HttpServletRequest request, Long memberId, PostDto postDto) throws Exception;
+    PostResponseDto savePost(Long memberId, PostDto postDto) throws Exception;
 
     PostResponseDto getPost(Long id);
 
@@ -25,7 +25,9 @@ public interface PostService {
 
     Page<Post> getByPostContent(String keyword, Pageable pageable);
 
-    PostResponseDto changePost(HttpServletRequest request, Long id, PostDto postDto) throws Exception;
+    Page<Post> getByWriter(String keyword, Pageable pageable);
+
+    PostResponseDto changePost(Long id, PostDto postDto) throws Exception;
 
     void deletePost(Long id) throws Exception;
 }
