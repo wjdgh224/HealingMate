@@ -33,8 +33,8 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostResponseDto savePost(HttpServletRequest request, Long memberId, PostDto postDto) throws Exception{
-        List<String> path = updateFiles(request, postDto.getPostPhotos());
+    public PostResponseDto savePost(Long memberId, PostDto postDto) throws Exception{
+        List<String> path = updateFiles(postDto.getPostPhotos());
         Post post = new Post();
         post.setPostTitle(postDto.getPostTitle());
         post.setCategory(postDto.getCategory());
@@ -57,7 +57,7 @@ public class PostServiceImpl implements PostService {
         return postResponseDto;
     }
 
-    public List<String> updateFiles(HttpServletRequest request, List<MultipartFile> files) throws Exception {
+    public List<String> updateFiles(List<MultipartFile> files) throws Exception {
         if(files==null)
             return null;
         SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmss");
@@ -138,8 +138,15 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostResponseDto changePost(HttpServletRequest request, Long id, PostDto postDto) throws Exception {
-        Post changedPost = postDao.updatePost(request, id, postDto);
+    public Page<Post> getByWriter(String keyword, Pageable pageable) {
+        Page<Post> posts = postDao.selectByWriter(keyword, pageable);
+
+        return posts;
+    }
+
+    @Override
+    public PostResponseDto changePost(Long id, PostDto postDto) throws Exception {
+        Post changedPost = postDao.updatePost(id, postDto);
 
         PostResponseDto postResponseDto = new PostResponseDto();
         postResponseDto.setPostId(changedPost.getPostId());

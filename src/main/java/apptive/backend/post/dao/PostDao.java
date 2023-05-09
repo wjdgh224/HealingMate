@@ -22,9 +22,9 @@ public interface PostDao {
 
     Page<Post> selectByPostContent(String keyword, Pageable pageable);
 
-    //Page<Post> selectByWriter(String keyword, Pageable pageable);
+    Page<Post> selectByWriter(String keyword, Pageable pageable);
 
-    Post updatePost(HttpServletRequest request, Long id, PostDto postDto) throws Exception;
+    Post updatePost(Long id, PostDto postDto) throws Exception;
 
     void deletePost(Long id) throws Exception;
 

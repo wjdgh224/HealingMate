@@ -1,5 +1,6 @@
 package apptive.backend.post.entity;
 
+import apptive.backend.config.StringListConverter;
 import apptive.backend.login.domain.Member;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -25,6 +26,7 @@ public class Post {
 
     private String postContent;
 
+    @Convert(converter = StringListConverter.class)
     private List<String> postPhotos;
 
     private Long isLike;

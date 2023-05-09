@@ -9,7 +9,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findByCategory(String keyword, Pageable pageable);
     Page<Post> findByPostTitleContaining(String keyword, Pageable pageable);
     Page<Post> findByPostContentContaining(String keyword, Pageable pageable);
-    //Page<Post> findByMemberMemberId(Long id, Pageable pageable);
+    Page<Post> findByMemberMemberId(Long id, Pageable pageable);
 
     //Page<Post> findByMemberNickName(String keyword, Pageable pageable); // 작성자로 id 찾은 후
 }
