@@ -4,7 +4,6 @@ import apptive.backend.post.dto.PostDto;
 import apptive.backend.post.dto.PostResponseDto;
 import apptive.backend.post.entity.Post;
 import apptive.backend.post.service.PostService;
-import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/post")
@@ -25,6 +23,10 @@ public class PostController {
         this.postService = postService;
     }
 
+    @GetMapping("test")
+    public String test() {
+        return "test";
+    }
     @PostMapping("/post/{memberId}") // @RequestBody는 Json, 맴버별 게시판 저장
     public ResponseEntity<PostResponseDto> createPost(@PathVariable Long memberId, PostDto postDto) throws Exception{
         PostResponseDto postResponseDto = postService.savePost(memberId, postDto);
@@ -44,15 +46,8 @@ public class PostController {
     public ResponseEntity<Page<Post>> getPosts(@RequestParam(defaultValue = "0") int page) {
         PageRequest pageRequest = PageRequest.of(page, 10);
         Page<Post> pages = postService.getPosts(pageRequest);
-//        System.out.println("PAGE SIZE : " + pages.getSize());
-//        System.out.println("TOTAL PAGES : " + pages.getTotalPages());
-//        System.out.println("TOTAL COUNT : " + pages.getTotalElements());
-//        System.out.println("NEXT : " + pages.nextPageable());
         return  ResponseEntity.status(HttpStatus.OK).body(pages);
 
-//        List<PostResponseDto> postResponseDto = postService.getPosts();
-//
-//        return ResponseEntity.status(HttpStatus.OK).body(postResponseDto);
     }
 
     @GetMapping("/posts/category") // 카테고리로 게시글 조회
