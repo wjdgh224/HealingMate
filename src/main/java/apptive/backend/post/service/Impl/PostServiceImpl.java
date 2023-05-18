@@ -1,40 +1,40 @@
 package apptive.backend.post.service.Impl;
 
+import apptive.backend.config.AwsS3;
 import apptive.backend.post.dao.PostDao;
-import apptive.backend.post.dto.CommentResponseDto;
 import apptive.backend.post.dto.PostDto;
 import apptive.backend.post.dto.PostResponseDto;
-import apptive.backend.post.entity.Comment;
 import apptive.backend.post.entity.Post;
 import apptive.backend.post.service.PostService;
-import jakarta.servlet.http.HttpServletRequest;
+import apptive.backend.post.service.S3Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 @Service
 public class PostServiceImpl implements PostService {
     private final PostDao postDao;
-    private final String path = getClass().getResource("/static/images/").getPath();
-
+    private final S3Service s3Service;
     @Autowired
-    public PostServiceImpl(PostDao postDao) {
+    public PostServiceImpl(PostDao postDao, S3Service s3Service) {
         this.postDao = postDao;
+        this.s3Service = s3Service;
     }
 
     @Override
     public PostResponseDto savePost(Long memberId, PostDto postDto) throws Exception{
-        List<String> path = updateFiles(postDto.getPostPhotos());
+        List<AwsS3> awsS3s = s3Service.upload(postDto.getPostPhotos(), "upload");
+        List<String> path = new ArrayList<>();
+        for(int i=0; i<awsS3s.size(); i++) {
+            System.out.println(awsS3s.get(i).getKey() + " " + awsS3s.get(i).getPath());
+            path.add(awsS3s.get(i).getPath());
+        }
         Post post = new Post();
         post.setPostTitle(postDto.getPostTitle());
         post.setCategory(postDto.getCategory());
@@ -57,29 +57,6 @@ public class PostServiceImpl implements PostService {
         return postResponseDto;
     }
 
-    public List<String> updateFiles(List<MultipartFile> files) throws Exception {
-        if(files==null)
-            return null;
-        SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmss");
-        Calendar now = Calendar.getInstance();
-        String nowTime = sdf.format(now.getTime());
-        //System.out.println(nowTime);
-
-        List<String> list = new ArrayList<>();
-        int i = 1;
-        for(MultipartFile file : files) { // 서순 주기
-            String fileType = file.getContentType(); //확장자명 추출 후(마지막 .) path에 적용
-            String ex = fileType.substring(fileType.indexOf("/")+1, fileType.length());
-            String name = nowTime + "_" + i + "." + ex;
-            String path = this.path + name;
-            file.transferTo(new File(path));
-            list.add(name);
-            i++;
-        }
-
-        return list;
-    }
-
     @Override
     public PostResponseDto getPost(Long id) {
         Post post = postDao.selectPost(id);
@@ -91,28 +68,18 @@ public class PostServiceImpl implements PostService {
         postResponseDto.setPostContent(post.getPostContent());
         List<String> list = new ArrayList<>();
         for(String photo : post.getPostPhotos()) {
-            list.add(this.path + photo);
+            list.add(photo);
         }
         postResponseDto.setPostPhotos(list);
         postResponseDto.setIsLike(post.getIsLike());
 
+        System.out.println(postResponseDto);
         return postResponseDto;
     }
 
     @Override
     public Page<Post> getPosts(PageRequest pageRequest) {
         Page<Post> posts = postDao.selectPosts(pageRequest);
-//        List<PostResponseDto> responseDtoes = new ArrayList<>();
-//        for(Post post : posts) {
-//            PostResponseDto responsePost = new PostResponseDto();
-//            responsePost.setPostId(post.getPostId());
-//            responsePost.setPostTitle(post.getPostTitle());
-//            responsePost.setCategory(post.getCategory());
-//            responsePost.setPostContent(post.getPostContent());
-//            responsePost.setPostPhoto(post.getPostPhoto());
-//            responsePost.setIsLike(post.getIsLike());
-//            responseDtoes.add(responsePost);
-//        }
         return posts;
     }
 

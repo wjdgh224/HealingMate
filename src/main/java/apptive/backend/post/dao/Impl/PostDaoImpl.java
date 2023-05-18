@@ -1,25 +1,21 @@
 package apptive.backend.post.dao.Impl;
 
+import apptive.backend.config.AwsS3;
 import apptive.backend.login.domain.Member;
 import apptive.backend.login.repository.MemberRepository;
 import apptive.backend.post.dao.PostDao;
 import apptive.backend.post.dto.PostDto;
 import apptive.backend.post.entity.Post;
 import apptive.backend.post.repository.PostRepository;
-import jakarta.servlet.http.HttpServletRequest;
+import apptive.backend.post.service.S3Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,13 +25,13 @@ public class PostDaoImpl implements PostDao {
     private final MemberRepository memberRepository;
 
     private final PostRepository postRepository;
-
-    private final String path = getClass().getResource("/static/images/").getPath();
+    private final S3Service s3Service;
 
     @Autowired
-    public PostDaoImpl(MemberRepository memberRepository, PostRepository postRepository) {
+    public PostDaoImpl(MemberRepository memberRepository, PostRepository postRepository, S3Service s3Service) {
         this.memberRepository = memberRepository;
         this.postRepository = postRepository;
+        this.s3Service = s3Service;
     }
 
     @Override
@@ -92,12 +88,26 @@ public class PostDaoImpl implements PostDao {
 
     @Override
     public Post updatePost(Long id, PostDto postDto) throws Exception {
-        Optional<Post> selectedPost = postRepository.findById(id);
-        List<String> path = updateFiles(postDto.getPostPhotos());
+        Optional<Post> selectedPost = postRepository.findById(id); // 기존의 데이터
+
+        List<AwsS3> awsS3s = s3Service.upload(postDto.getPostPhotos(), "upload");
+        List<String> path = new ArrayList<>();
+        for(int i=0; i<awsS3s.size(); i++) {
+            path.add(awsS3s.get(i).getPath());
+        }
 
         Post updatedPost;
         if(selectedPost.isPresent()) {
             Post post = selectedPost.get(); // already exist data = fixed id = update
+            List<String> photos = post.getPostPhotos(); // 기존에 들어 있는 이미지 정보로 S3 삭제
+            for(int i=0; i<photos.size(); i++) {
+                String p = photos.get(i);
+                String []key = p.split("/");
+                AwsS3 awsS3 = new AwsS3();
+                awsS3.setKey("upload/"+key[key.length-1]);
+                awsS3.setPath(p);
+                s3Service.remove(awsS3);
+            }
             post.setPostTitle(postDto.getPostTitle());
             post.setCategory(postDto.getCategory());
             post.setPostContent(postDto.getPostContent());
@@ -112,34 +122,22 @@ public class PostDaoImpl implements PostDao {
         return updatedPost;
     }
 
-    public List<String> updateFiles(List<MultipartFile> files) throws Exception {
-        if(files==null)
-            return null;
-        SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmss");
-        Calendar now = Calendar.getInstance();
-        String nowTime = sdf.format(now.getTime());
-
-        List<String> list = new ArrayList<>();
-        int i = 1;
-        for(MultipartFile file : files) { // 서순 주기
-            String fileType = file.getContentType(); //확장자명 추출 후(마지막 .) path에 적용
-            String ex = fileType.substring(fileType.indexOf("/")+1, fileType.length());
-            String name = nowTime + "_" + i + "." + ex;
-            String path = this.path + name;
-            file.transferTo(new File(path));
-            list.add(name);
-            i++;
-        }
-
-        return list;
-    }
-
     @Override
     public void deletePost(Long id) throws Exception {
         Optional<Post> selectedPost = postRepository.findById(id);
 
         if(selectedPost.isPresent()) {
             Post post = selectedPost.get();
+            List<String> photos = post.getPostPhotos();
+            // S3사진 삭제 작업.
+            for(int i=0; i<photos.size(); i++) {
+                String path = photos.get(i);
+                String []key = path.split("/");
+                AwsS3 awsS3 = new AwsS3();
+                awsS3.setKey("upload/"+key[key.length-1]);
+                awsS3.setPath(path);
+                s3Service.remove(awsS3);
+            }
             postRepository.delete(post);
         } else{
             throw new Exception();
