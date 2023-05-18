@@ -21,7 +21,7 @@ import java.util.List;
 @Component
 public class JwtTokenProvider {
 
-    private String secretKey = "webfirewood";
+    private String secretKey = "mysecretkey";
     private long tokenValidTime = 30*60*1000L; //토큰 유효시간 30분
     private final UserDetailsService userDetailsService;
 
@@ -45,7 +45,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    //인증 정보 조회
+    // 인증 정보 조회
     public Authentication getAuthentication(String token) {
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(getUserPK(token));
@@ -68,7 +68,8 @@ public class JwtTokenProvider {
     }
 
     // Request의 Header 에서 token 값 가져오기
+    // 헤더에서 "AccessToken"이란 이름으로 제공 가능
     public String resolveToken(HttpServletRequest request) {
-        return request.getHeader("X-AUTH-TOKEN");
+        return request.getHeader("AccessToken");
     }
 }
