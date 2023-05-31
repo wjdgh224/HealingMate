@@ -14,7 +14,9 @@ public enum ExceptionEnum {
     PWD_CONDITION_EXCEPTION(HttpStatus.BAD_REQUEST, "E0002", "8자 이상 20자 이하의 숫자, 영문자, 특수문자를 포함한 비밀번호를 입력해주세요"),
     SAME_MEMBER_NAME_EXCEPTION(HttpStatus.BAD_REQUEST, "E0003", "같은 닉네임이 존재합니다."),
     MEMBER_NOT_EXIST_EXCEPTION(HttpStatus.BAD_REQUEST, "E0004", "존재하지 않는 회원입니다."),
-    WRONG_PWD_EXCEPTION(HttpStatus.BAD_REQUEST, "E0005", "비밀번호가 틀렸습니다.");
+    WRONG_PWD_EXCEPTION(HttpStatus.BAD_REQUEST, "E0005", "비밀번호가 틀렸습니다."),
+    //토큰 관련 에러
+    WRONG_TOKEN_EXCEPTION(HttpStatus.BAD_REQUEST, "E0010", "사용할 수 없는 토큰입니다.");
 
     private final HttpStatus status;
     private final String code;

@@ -1,9 +1,7 @@
 package apptive.backend.login.dto.request;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 public class LoginRequestDto {
 

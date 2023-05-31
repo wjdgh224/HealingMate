@@ -19,13 +19,15 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
-public class MemberConfig {
+public class JwtConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final WebConfig webConfig;
 
     //비밀번호 암호화
     @Bean
@@ -54,7 +56,9 @@ public class MemberConfig {
                     //System.out.println("logout Success!");
                     HttpSession session = request.getSession();
                     session.invalidate();
-                });
+                })
+                // cors 설정
+                .and().cors().configurationSource(webConfig.corsConfigurationSource());
 
         return httpSecurity.build();
     }
