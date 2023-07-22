@@ -2,12 +2,10 @@ package apptive.backend.login.domain;
 
 import apptive.backend.config.StringListConverter;
 import apptive.backend.login.dto.request.MemberRequestDto;
-import apptive.backend.post.entity.Post;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -49,9 +47,9 @@ public class Member implements Serializable, UserDetails {
     @Column(nullable = false)
     private List<String> diseaseList;
 
-    @OneToMany(mappedBy = "member", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    /*@OneToMany(mappedBy = "member", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @ToString.Exclude
-    private List<Post> postList = new ArrayList<>();
+    private List<Post> postList = new ArrayList<>();*/
 
     //<------------Builder------------>
     @Builder
