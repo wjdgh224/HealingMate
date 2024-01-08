@@ -1,4 +1,4 @@
-# Eazy 와인
+# HealingMate
 
 ## 1. 📚 Product Manager(IT Service Planner), 💻 Developer, 🎨 Designer
 <div align="center">
